@@ -1,0 +1,14 @@
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+
+# Eclipse project files
+eclipse/
+
+# Gradle artifacts
+.gradle/
+
+# Build artifacts
+build/
+out/

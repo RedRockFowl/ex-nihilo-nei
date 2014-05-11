@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ex-nihilo-nei",
+  "name": "Ex Nihilo NEI Add-on",
+  "description": "NEI Add-on for Ex Nihilo",
+  "version": "${version ?: 'unknown' }",
+  "mcversion": "${mcversion ?: 'unknown' }",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["Red Rock Fowl"],
+  "credits": "Erasumus Crowley, for creating Ex Nihilo",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

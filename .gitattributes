@@ -1,0 +1,5 @@
+# A sane default
+* text=auto
+
+# Handle Windows files
+*.bat text eol=crlf
