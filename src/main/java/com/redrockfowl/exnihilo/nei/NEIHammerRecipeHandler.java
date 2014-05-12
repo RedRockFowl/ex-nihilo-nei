@@ -118,7 +118,7 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
         String s;
         if (recipe.distribution.probabilities.size() == 1) {
 
-            int odds = recipe.distribution.rarities.get(0) - 1;
+            int odds = (int) (1.0f / recipe.distribution.probabilities.get(0)) - 1;
             if (odds == 0) { return; }
             s = String.format("1:%d", odds);
 

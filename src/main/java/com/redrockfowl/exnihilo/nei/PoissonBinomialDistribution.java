@@ -6,16 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.Math.round;
-
 public class PoissonBinomialDistribution {
 
-    List<Integer> rarities;
     List<Float> probabilities;
     private Map<Integer, Float> pmf;
 
     private PoissonBinomialDistribution() {
-        rarities = new ArrayList<Integer>();
         probabilities = new ArrayList<Float>();
     }
 
@@ -29,22 +25,12 @@ public class PoissonBinomialDistribution {
         addProbability(probability);
     }
 
-    public void addMultiplier(float multiplier) {
-        this.pmf = null;
-        for (int i = 0; i < probabilities.size(); i++) {
-            probabilities.set(i, probabilities.get(i) + multiplier);
-        }
-    }
-
     public void addProbability(float probability) {
         pmf = null;
         probabilities.add(probability);
-        rarities.add(round(1 / probability));
     }
 
     public void addRarity(int rarity) {
-        pmf = null;
-        rarities.add(rarity);
         probabilities.add(1.0f / rarity);
     }
 
