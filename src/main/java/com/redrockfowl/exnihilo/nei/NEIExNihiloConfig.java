@@ -8,12 +8,17 @@ public class NEIExNihiloConfig implements IConfigureNEI {
     @Override
     public void loadConfig() {
 
-        API.registerRecipeHandler(new NEISieveRecipeHandler());
-        API.registerUsageHandler(new NEISieveRecipeHandler());
-        API.registerRecipeHandler(new NEIHammerRecipeHandler());
-        API.registerUsageHandler(new NEIHammerRecipeHandler());
-        API.registerRecipeHandler(new NEICompostRecipeHandler());
-        API.registerUsageHandler(new NEICompostRecipeHandler());
+        NEISieveRecipeHandler sieveRecipeHandler = new NEISieveRecipeHandler();
+        API.registerRecipeHandler(sieveRecipeHandler);
+        API.registerUsageHandler(sieveRecipeHandler);
+
+        NEIHammerRecipeHandler hammerRecipeHandler = new NEIHammerRecipeHandler();
+        API.registerRecipeHandler(hammerRecipeHandler);
+        API.registerUsageHandler(hammerRecipeHandler);
+
+        NEICompostRecipeHandler compostRecipeHandler = new NEICompostRecipeHandler();
+        API.registerRecipeHandler(compostRecipeHandler);
+        API.registerUsageHandler(compostRecipeHandler);
 
     }
 
