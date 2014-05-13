@@ -54,7 +54,7 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public String getGuiTexture() {
-        return new ResourceLocation("redrockfowl", "exnihilo/gui/nei/exnihilo.png").toString();
+        return new ResourceLocation(ExNihiloNEI.MODID, "gui/nei/exnihilo.png").toString();
     }
 
     @Override

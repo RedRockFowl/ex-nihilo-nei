@@ -15,6 +15,19 @@ apply plugin: 'forge'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+
+def getVersion = {
+    try {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'describe', '--dirty'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    }
+    catch (ignored) {
+        return null
+    }
 }
 
 version = getVersion()
@@ -23,6 +36,8 @@ archivesBaseName = "ex-nihilo-nei"
 
 minecraft {
     version = "1.6.4-9.11.1.964"
+    replace '${version}', project.version
+    replace '${modid}', project.archivesBaseName
 }
 
 processResources
@@ -36,8 +51,8 @@ processResources
         include 'mcmod.info'
 
         // replace version and mcversion
-        expand ('version':project.version
-               , 'mcversion':project.minecraft.version
+        expand ( 'version': project.version
+               , 'mcversion': project.minecraft.version
                )
     }
 
@@ -47,16 +62,3 @@ processResources
     }
 }
 
-def getVersion = {
-    try {
-        def stdout = new ByteArrayOutputStream()
-        exec {
-            commandLine 'git', 'describe', '--dirty'
-            standardOutput = stdout
-        }
-        return stdout.toString.trim()
-    }
-    catch (ignored) {
-        return null
-    }
-}

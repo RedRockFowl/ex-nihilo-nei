@@ -24,7 +24,7 @@ public class NEIExNihiloConfig implements IConfigureNEI {
 
     @Override
     public String getName() {
-        return "Ex Nihilo NEI";
+        return ExNihiloNEI.NAME;
     }
 
     @Override
