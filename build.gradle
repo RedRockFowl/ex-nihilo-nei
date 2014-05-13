@@ -11,10 +11,37 @@ buildscript {
     }
 }
 
+repositories {
+    ivy {
+        name 'CB FS'
+        artifactPattern "http://www.chickenbones.craftsaddle.org/Files/New_Versions/1.6.4/[module]-dev%20[revision].[ext]"
+    }
+}
+
 apply plugin: 'forge'
 
+configurations {
+    provided
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+ext.configFile = file "build.properties"
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile name: 'CodeChickenCore', version: "${config.ccc_version}", ext: 'jar'
+    compile name: 'NotEnoughItems', version: "${config.nei_version}", ext: 'jar'
+    provided fileTree(dir: 'libs', include: '*.jar')
+}
 
 def getVersion = {
     try {
@@ -35,7 +62,7 @@ group= "com.redrockfowl.ex-nihilo-nei"
 archivesBaseName = "ex-nihilo-nei"
 
 minecraft {
-    version = "1.6.4-9.11.1.964"
+    version = "${config.mc_version}-9.11.1.964"
     replace '${version}', project.version
     replace '${modid}', project.archivesBaseName
 }
