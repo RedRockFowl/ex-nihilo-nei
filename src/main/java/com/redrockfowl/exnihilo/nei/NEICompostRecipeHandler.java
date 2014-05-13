@@ -99,7 +99,9 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
         for (PositionedStack barrel : barrels) {
             if (NEIServerUtils.areStacksSameTypeCrafting(barrel.item, ingredient)) {
                 for (Compostable compostable : compostables) {
-                    this.arecipes.add(new CachedCompostRecipe(compostable));
+                    CachedCompostRecipe recipe = new CachedCompostRecipe(compostable);
+                    recipe.other = new PositionedStack(ingredient, 43, 34);
+                    this.arecipes.add(recipe);
                 }
             }
         }
@@ -127,6 +129,7 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
 
         PositionedStack input;
         PositionedStack output;
+        PositionedStack other;
         float amount;
 
         public CachedCompostRecipe(Compostable compostable) {
@@ -147,7 +150,10 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
 
         @Override
         public PositionedStack getOtherStack() {
-            return barrels.get(cycleticks / 64 % barrels.size());
+            if (other == null) {
+                return barrels.get(cycleticks / 64 % barrels.size());
+            }
+            return other;
         }
 
     }
