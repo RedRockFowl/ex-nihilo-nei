@@ -72,12 +72,12 @@ public class PoissonBinomialDistribution {
 
     }
 
-    public float average() {
-        float average = 0.0f;
+    public float mean() {
+        float mean = 0.0f;
         for (Pair<Integer, Float> pair : pmf()) {
-            average += pair.fst * pair.snd;
+            mean += pair.fst * pair.snd;
         }
-        return average;
+        return mean;
     }
 
 }

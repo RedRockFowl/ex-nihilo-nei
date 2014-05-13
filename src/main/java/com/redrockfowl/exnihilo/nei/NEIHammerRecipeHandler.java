@@ -156,7 +156,7 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
         if (gui.isMouseOver(recipe.output, id)) {
             if (recipe.pmf.size() > 2 ||
                     (recipe.pmf.size() == 2 && recipe.pmf.get(0).fst != 0 && recipe.pmf.get(1).fst != 1)) {
-                currenttip.add(String.format("§7%.2f average", recipe.average));
+                currenttip.add(String.format("§7%.2f average", recipe.mean));
             }
         }
 
@@ -170,14 +170,14 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
         PositionedStack output;
         PositionedStack other;
         List<Pair<Integer, Float>> pmf;
-        float average;
+        float mean;
 
         public CachedHammerRecipe(RewardRecipe recipe, PoissonBinomialDistribution distribution) {
 
             this.input = new PositionedStack(recipe.input, 43, 13, false);
             this.output = new PositionedStack(recipe.output, 119, 24, false);
             this.pmf = distribution.pmf();
-            this.average = distribution.average();
+            this.mean = distribution.mean();
 
         }
 
