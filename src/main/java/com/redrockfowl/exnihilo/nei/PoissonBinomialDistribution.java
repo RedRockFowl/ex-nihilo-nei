@@ -4,32 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.lang.Math.min;
+
 public class PoissonBinomialDistribution {
 
     private List<Float> probabilities;
     private List<Pair<Integer, Float>> pmf;
 
-    private PoissonBinomialDistribution() {
-        probabilities = new ArrayList<Float>();
-    }
-
-    public PoissonBinomialDistribution(int rarity) {
-        this();
-        addRarity(rarity);
-    }
-
-    public PoissonBinomialDistribution(float probability) {
-        this();
-        addProbability(probability);
-    }
-
-    public void addProbability(float probability) {
-        pmf = null;
-        probabilities.add(probability);
-    }
-
-    public void addRarity(int rarity) {
-        probabilities.add(1.0f / rarity);
+    public PoissonBinomialDistribution(Collection<Float> probabilities) {
+        this.probabilities = new ArrayList<Float>(probabilities);
     }
 
     public List<Pair<Integer, Float>> pmf() {
@@ -50,11 +33,11 @@ public class PoissonBinomialDistribution {
                 float product = 1.0f;
 
                 for (float probability : partition.fst) {
-                    product *= probability;
+                    product *= min(probability, 1.0f);
                 }
 
                 for (float probability : partition.snd) {
-                    product *= 1 - probability;
+                    product *= 1 - min(probability, 1.0f);
                 }
 
                 sum += product;

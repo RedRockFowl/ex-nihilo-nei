@@ -7,14 +7,19 @@ import codechicken.nei.recipe.TemplateRecipeHandler;
 import exnihilo.registries.SieveRegistry;
 import exnihilo.registries.helpers.SiftReward;
 import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import org.apache.commons.lang3.math.Fraction;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static java.lang.Math.round;
 
 public class NEISieveRecipeHandler extends TemplateRecipeHandler {
 
@@ -65,8 +70,13 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
     @Override
     public void loadCraftingRecipes(String outputId, Object... results) {
         if (outputId.equals("sieverecipes") && getClass() == NEISieveRecipeHandler.class) {
-            for (Map.Entry<RewardRecipe, PoissonBinomialDistribution> entry : recipes.getRecipes().entrySet()) {
-                this.arecipes.add(new CachedSieveRecipe(entry.getKey(), entry.getValue()));
+            for (Map.Entry<RewardRecipe, List<Pair<Float, Float>>> entry : recipes.getRecipes().entrySet()) {
+                List<Pair<Float, Float>> pairs = entry.getValue();
+                List<Float> probabilities = new ArrayList<Float>(pairs.size());
+                for (Pair<Float, Float> pair : pairs) {
+                    probabilities.add(pair.fst);
+                }
+                this.arecipes.add(new CachedSieveRecipe(entry.getKey(), new PoissonBinomialDistribution(probabilities)));
             }
         } else {
             super.loadCraftingRecipes(outputId, results);
@@ -75,10 +85,15 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public void loadCraftingRecipes(ItemStack result) {
-        for (Map.Entry<RewardRecipe, PoissonBinomialDistribution> entry : recipes.getRecipes().entrySet()) {
+        for (Map.Entry<RewardRecipe, List<Pair<Float, Float>>> entry : recipes.getRecipes().entrySet()) {
             RewardRecipe recipe = entry.getKey();
             if (NEIServerUtils.areStacksSameTypeCrafting(recipe.output, result)) {
-                this.arecipes.add(new CachedSieveRecipe(recipe, entry.getValue()));
+                List<Pair<Float, Float>> pairs = entry.getValue();
+                List<Float> probabilities = new ArrayList<Float>(pairs.size());
+                for (Pair<Float, Float> pair : pairs) {
+                    probabilities.add(pair.fst);
+                }
+                this.arecipes.add(new CachedSieveRecipe(recipe, new PoissonBinomialDistribution(probabilities)));
             }
         }
     }
@@ -86,17 +101,34 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
     @Override
     public void loadUsageRecipes(ItemStack ingredient) {
 
-        for (Map.Entry<RewardRecipe, PoissonBinomialDistribution> entry : recipes.getRecipes().entrySet()) {
+        for (Map.Entry<RewardRecipe, List<Pair<Float, Float>>> entry : recipes.getRecipes().entrySet()) {
             RewardRecipe recipe = entry.getKey();
             if (NEIServerUtils.areStacksSameTypeCrafting(recipe.input, ingredient)) {
-                this.arecipes.add(new CachedSieveRecipe(recipe, entry.getValue()));
+                List<Pair<Float, Float>> pairs = entry.getValue();
+                List<Float> probabilities = new ArrayList<Float>(pairs.size());
+                for (Pair<Float, Float> pair : pairs) {
+                    probabilities.add(pair.fst);
+                }
+                this.arecipes.add(new CachedSieveRecipe(recipe, new PoissonBinomialDistribution(probabilities)));
             }
         }
 
         for (PositionedStack sieve : sieves) {
             if (NEIServerUtils.areStacksSameTypeCrafting(sieve.item, ingredient)) {
-                for (Map.Entry<RewardRecipe, PoissonBinomialDistribution> entry : recipes.getRecipes().entrySet()) {
-                    this.arecipes.add(new CachedSieveRecipe(entry.getKey(), entry.getValue()));
+                for (Map.Entry<RewardRecipe, List<Pair<Float, Float>>> entry : recipes.getRecipes().entrySet()) {
+
+                    int fortune = EnchantmentHelper.getEnchantmentLevel(Enchantment.fortune.effectId, ingredient);
+
+                    List<Pair<Float, Float>> pairs = entry.getValue();
+                    List<Float> probabilities = new ArrayList<Float>(pairs.size());
+                    for (Pair<Float, Float> pair : pairs) {
+                        probabilities.add(pair.fst + fortune * pair.snd);
+                    }
+
+                    CachedSieveRecipe recipe = new CachedSieveRecipe(entry.getKey(), new PoissonBinomialDistribution(probabilities));
+                    recipe.other = new PositionedStack(ingredient, 43, 34);
+                    this.arecipes.add(recipe);
+
                 }
             }
         }
@@ -116,19 +148,23 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
         String s;
         if (recipe.pmf.size() == 2 && recipe.pmf.get(0).fst == 0 && recipe.pmf.get(1).fst == 1) {
 
-            int odds = (int) (1.0f / recipe.pmf.get(1).snd) - 1;
-            if (odds == 0) { return; }
-            s = String.format("1:%d", odds);
+            float probability = recipe.pmf.get(1).snd;
+            if (probability == 1.0f) {
+                return;
+            } else {
+                Fraction odds = Fraction.getFraction((1.0f - probability) / probability);
+                s = String.format("%d:%d", odds.getNumerator(), odds.getDenominator());
+            }
 
         } else {
 
             int which = cycleticks / 48 % recipe.pmf.size();
-            float chance = recipe.pmf.get(which).snd;
-            if (chance == 1.0) { return; }
+            float probability = recipe.pmf.get(which).snd;
+            if (probability == 1.0) { return; }
 
             recipe.output.item.stackSize = recipe.pmf.get(which).fst;
 
-            int percent = (int) (chance * 100);
+            int percent = round(probability * 100);
             if (percent < 1) {
                 s = "<1%";
             } else {
@@ -161,6 +197,7 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
 
         PositionedStack input;
         PositionedStack output;
+        PositionedStack other;
         List<Pair<Integer, Float>> pmf;
         float mean;
 
@@ -185,7 +222,10 @@ public class NEISieveRecipeHandler extends TemplateRecipeHandler {
 
         @Override
         public PositionedStack getOtherStack() {
-            return sieves.get(cycleticks / 64 % sieves.size());
+            if (other == null) {
+                return sieves.get(cycleticks / 64 % sieves.size());
+            }
+            return other;
         }
 
     }

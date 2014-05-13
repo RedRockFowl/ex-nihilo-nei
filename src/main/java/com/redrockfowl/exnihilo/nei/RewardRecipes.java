@@ -1,48 +1,47 @@
 package com.redrockfowl.exnihilo.nei;
 
-import exnihilo.registries.helpers.Compostable;
 import exnihilo.registries.helpers.SiftReward;
 import exnihilo.registries.helpers.Smashable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RewardRecipes {
 
-    private Map<RewardRecipe, PoissonBinomialDistribution> recipes;
+    private Map<RewardRecipe, List<Pair<Float, Float>>> recipes;
 
     public RewardRecipes() {
-        recipes = new HashMap<RewardRecipe, PoissonBinomialDistribution>();
+        recipes = new HashMap<RewardRecipe, List<Pair<Float, Float>>>();
     }
 
     public void add(SiftReward reward) {
         RewardRecipe recipe = new RewardRecipe(reward);
+        float probability = 1.0f / reward.rarity;
+        Pair<Float, Float> pair = new Pair<Float, Float>(probability, 0.0f);
         if (recipes.containsKey(recipe)) {
-            recipes.get(recipe).addRarity(reward.rarity);
+            recipes.get(recipe).add(pair);
         } else {
-            recipes.put(recipe, new PoissonBinomialDistribution(reward.rarity));
+            List<Pair<Float, Float>> list = new ArrayList<Pair<Float, Float>>();
+            list.add(pair);
+            recipes.put(recipe, list);
         }
     }
 
     public void add(Smashable reward) {
         RewardRecipe recipe = new RewardRecipe(reward);
+        Pair<Float, Float> pair = new Pair<Float, Float>(reward.chance, reward.luckMultiplier);
         if (recipes.containsKey(recipe)) {
-            recipes.get(recipe).addProbability(reward.chance);
+            recipes.get(recipe).add(pair);
         } else {
-            recipes.put(recipe, new PoissonBinomialDistribution(reward.chance));
+            List<Pair<Float, Float>> list = new ArrayList<Pair<Float, Float>>();
+            list.add(pair);
+            recipes.put(recipe, list);
         }
     }
 
-    public void add(Compostable compostable) {
-        RewardRecipe recipe = new RewardRecipe(compostable);
-        if (recipes.containsKey(recipe)) {
-            recipes.get(recipe).addProbability(compostable.value);
-        } else {
-            recipes.put(recipe, new PoissonBinomialDistribution(compostable.value));
-        }
-    }
-
-    public Map<RewardRecipe, PoissonBinomialDistribution> getRecipes() {
+    public Map<RewardRecipe, List<Pair<Float, Float>>> getRecipes() {
         return recipes;
     }
 
