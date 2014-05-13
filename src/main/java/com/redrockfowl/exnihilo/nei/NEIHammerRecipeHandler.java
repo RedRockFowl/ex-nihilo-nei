@@ -38,7 +38,7 @@ public class NEIHammerRecipeHandler extends NEIRewardRecipeHandler {
 
     @Override
     public String getRecipeName() {
-        return "Hammer";
+        return Utils.translate("hammer.recipe");
     }
 
     @Override

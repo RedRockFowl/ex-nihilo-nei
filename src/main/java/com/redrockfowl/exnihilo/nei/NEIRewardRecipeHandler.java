@@ -154,10 +154,14 @@ public abstract class NEIRewardRecipeHandler extends TemplateRecipeHandler {
         CachedRewardRecipe recipe = (CachedRewardRecipe) this.arecipes.get(id);
 
         if (gui.isMouseOver(recipe.output, id)) {
+
             if (recipe.pmf.size() > 2 ||
                     (recipe.pmf.size() == 2 && recipe.pmf.get(0).fst != 0 && recipe.pmf.get(1).fst != 1)) {
-                currenttip.add(String.format("§7%.2f average", recipe.mean));
+                String mean = String.format("%.2f", recipe.mean);
+                mean = Utils.removeTrailingZeros(mean);
+                currenttip.add("§7" + Utils.translate("mean", mean));
             }
+
         }
 
         return currenttip;

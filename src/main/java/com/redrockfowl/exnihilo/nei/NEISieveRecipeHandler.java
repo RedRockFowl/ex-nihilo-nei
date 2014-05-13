@@ -38,7 +38,7 @@ public class NEISieveRecipeHandler extends NEIRewardRecipeHandler {
 
     @Override
     public String getRecipeName() {
-        return "Sieve";
+        return Utils.translate("sieve.recipe");
     }
 
     @Override

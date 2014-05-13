@@ -14,7 +14,6 @@ import net.minecraft.util.ResourceLocation;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class NEICompostRecipeHandler extends TemplateRecipeHandler {
 
@@ -60,7 +59,7 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
 
     @Override
     public String getRecipeName() {
-        return "Compost";
+        return Utils.translate("compost.recipe");
     }
 
     @Override
@@ -116,9 +115,10 @@ public class NEICompostRecipeHandler extends TemplateRecipeHandler {
     public List<String> handleItemTooltip(GuiRecipe gui, ItemStack stack, List<String> currenttip, int id) {
         CachedCompostRecipe recipe = (CachedCompostRecipe) this.arecipes.get(id);
         if (gui.isMouseOver(recipe.input, id)) {
-            String amount = String.format("%.5f", recipe.amount);
-            amount = Pattern.compile("\\.?0+$").matcher(amount).replaceFirst("");
-            currenttip.add("§7" + amount + " required");
+            String amount = String.format("%.2f", recipe.amount);
+            amount = Utils.removeTrailingZeros(amount);
+            String required = Utils.translate("required.amount", amount);
+            currenttip.add("§7" + required);
         }
         return currenttip;
     }
