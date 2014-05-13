@@ -2,14 +2,12 @@ package com.redrockfowl.exnihilo.nei;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PoissonBinomialDistribution {
 
-    List<Float> probabilities;
-    private Map<Integer, Float> pmf;
+    private List<Float> probabilities;
+    private List<Pair<Integer, Float>> pmf;
 
     private PoissonBinomialDistribution() {
         probabilities = new ArrayList<Float>();
@@ -34,13 +32,13 @@ public class PoissonBinomialDistribution {
         probabilities.add(1.0f / rarity);
     }
 
-    public Map<Integer, Float> pmf() {
+    public List<Pair<Integer, Float>> pmf() {
 
         if (pmf != null) {
             return pmf;
         }
 
-        HashMap<Integer, Float> map = new HashMap<Integer, Float>(probabilities.size());
+        ArrayList<Pair<Integer, Float>> list = new ArrayList<Pair<Integer, Float>>(probabilities.size());
 
         for (int k = 0; k <= probabilities.size(); k++) {
 
@@ -64,20 +62,20 @@ public class PoissonBinomialDistribution {
             }
 
             if (sum != 0.0) {
-                map.put(k, sum);
+                list.add(new Pair<Integer, Float>(k, sum));
             }
 
         }
 
-        pmf = map;
-        return map;
+        pmf = list;
+        return list;
 
     }
 
     public float average() {
         float average = 0.0f;
-        for (Map.Entry<Integer, Float> entry : pmf().entrySet()) {
-            average += entry.getKey() * entry.getValue();
+        for (Pair<Integer, Float> pair : pmf()) {
+            average += pair.fst * pair.snd;
         }
         return average;
     }

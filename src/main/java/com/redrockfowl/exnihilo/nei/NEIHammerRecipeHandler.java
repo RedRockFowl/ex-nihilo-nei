@@ -116,19 +116,19 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
         CachedHammerRecipe recipe = (CachedHammerRecipe) this.arecipes.get(idx);
 
         String s;
-        if (recipe.distribution.probabilities.size() == 1) {
+        if (recipe.pmf.size() == 2 && recipe.pmf.get(0).fst == 0 && recipe.pmf.get(1).fst == 1) {
 
-            int odds = (int) (1.0f / recipe.distribution.probabilities.get(0)) - 1;
+            int odds = (int) (1.0f / recipe.pmf.get(1).snd) - 1;
             if (odds == 0) { return; }
             s = String.format("1:%d", odds);
 
         } else {
 
-            int which = cycleticks / 48 % recipe.chances.size();
-            double chance = recipe.chances.get(which);
+            int which = cycleticks / 48 % recipe.pmf.size();
+            float chance = recipe.pmf.get(which).snd;
             if (chance == 1.0) { return; }
 
-            recipe.output.item.stackSize = recipe.amounts.get(which);
+            recipe.output.item.stackSize = recipe.pmf.get(which).fst;
 
             int percent = (int) (chance * 100);
 
@@ -154,8 +154,9 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
         CachedHammerRecipe recipe = (CachedHammerRecipe) this.arecipes.get(id);
 
         if (gui.isMouseOver(recipe.output, id)) {
-            if (recipe.distribution.probabilities.size() > 1) {
-                currenttip.add(String.format("§7%.2f average", recipe.distribution.average()));
+            if (recipe.pmf.size() > 2 ||
+                    (recipe.pmf.size() == 2 && recipe.pmf.get(0).fst != 0 && recipe.pmf.get(1).fst != 1)) {
+                currenttip.add(String.format("§7%.2f average", recipe.average));
             }
         }
 
@@ -167,26 +168,16 @@ public class NEIHammerRecipeHandler extends TemplateRecipeHandler {
 
         PositionedStack input;
         PositionedStack output;
-        PoissonBinomialDistribution distribution;
-        ArrayList<Integer> amounts;
-        ArrayList<Float> chances;
         PositionedStack other;
+        List<Pair<Integer, Float>> pmf;
+        float average;
 
         public CachedHammerRecipe(RewardRecipe recipe, PoissonBinomialDistribution distribution) {
 
             this.input = new PositionedStack(recipe.input, 43, 13, false);
             this.output = new PositionedStack(recipe.output, 119, 24, false);
-
-            this.distribution = distribution;
-            Map<Integer, Float> pmf = this.distribution.pmf();
-
-            int n = pmf.size();
-            this.amounts = new ArrayList<Integer>(n);
-            this.chances = new ArrayList<Float>(n);
-            for (Map.Entry<Integer, Float> entry : pmf.entrySet()) {
-                amounts.add(entry.getKey());
-                chances.add(entry.getValue());
-            }
+            this.pmf = distribution.pmf();
+            this.average = distribution.average();
 
         }
 
